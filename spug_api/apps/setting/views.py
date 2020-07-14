@@ -10,7 +10,7 @@ from apps.setting.models import Setting
 import platform
 import ldap
 import smtplib
-
+from django.http import JsonResponse
 
 class SettingView(View):
     def get(self, request):
@@ -58,10 +58,13 @@ def email_test(request):
                 server = smtplib.SMTP_SSL(form.server, form.port)
             else:
                 server = smtplib.SMTP(form.server, form.port)
-            server.login(form.username, form.password)
-            return json_response()
+            res=server.login(form.username, form.password)
+            resDict={}
+            resDict["data"]=str(res[1])
+            resDict["error"]=""
+            return JsonResponse(resDict)
         except Exception as e:
-            error = e.smtp_error.decode('utf-8')
+            error = e
             return json_response(error=error)
     return json_response(error=error)
 
